@@ -12,6 +12,7 @@ from helical.models.fine_tune.fine_tuning_heads import (
     RegressionHead,
     HelicalBaseFineTuningHead,
 )
+from helical.models.fine_tune.data_integration_head import DataIntegrationHead
 from typing import Literal
 from typing import Union
 from pandas import DataFrame
@@ -224,8 +225,8 @@ class HelicalBaseFineTuningModel(torch.nn.Module):
     Parameters
     ----------
 
-    fine_tuning_head: Literal["classification", "regression"] | HelicalBaseFineTuningHead
-        The fine-tuning head that is appended to the model. This can either be a string (options available: "classification" and "regression") specifying the task or a custom fine-tuning head inheriting from HelicalBaseFineTuningHead.
+    fine_tuning_head: Literal["classification", "regression", "data_integration"] | HelicalBaseFineTuningHead
+        The fine-tuning head that is appended to the model. This can either be a string (options available: "classification", "regression", and "data_integration") specifying the task or a custom fine-tuning head inheriting from HelicalBaseFineTuningHead.
     output_size : Optional[int]
         The output size of the fine-tuning model. This is required if the fine_tuning_head is a string specified task. For a classification task this is number of unique classes.
 
@@ -234,7 +235,7 @@ class HelicalBaseFineTuningModel(torch.nn.Module):
     def __init__(
         self,
         fine_tuning_head: (
-            Literal["classification", "regression"] | HelicalBaseFineTuningHead
+            Literal["classification", "regression", "data_integration"] | HelicalBaseFineTuningHead
         ),
         output_size: int,
     ):
@@ -254,6 +255,12 @@ class HelicalBaseFineTuningModel(torch.nn.Module):
                     LOGGER.error(message)
                     raise ValueError(message)
                 fine_tuning_head = RegressionHead(output_size)
+            elif fine_tuning_head == "data_integration":
+                if output_size is None:
+                    message = "The output_size (number of batches) must be specified for a data integration head."
+                    LOGGER.error(message)
+                    raise ValueError(message)
+                fine_tuning_head = DataIntegrationHead(output_size)
             else:
                 message = "Not implemented fine-tuning head."
                 LOGGER.error(message)

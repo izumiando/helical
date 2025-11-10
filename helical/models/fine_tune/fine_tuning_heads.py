@@ -1,6 +1,8 @@
 import torch
+import torch.nn.functional as F
 from abc import ABC
 from abc import abstractmethod
+from typing import Dict, Optional
 
 
 class HelicalBaseFineTuningHead(torch.nn.Module, ABC):
