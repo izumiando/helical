@@ -107,6 +107,11 @@ class DataCollator:
             masked_expressions = padded_expressions
         data_dict["masked_expr"] = masked_expressions
 
+        # preserve batch_labels if they exist in the examples
+        if "batch_labels" in examples[0]:
+            batch_labels = torch.tensor([example["batch_labels"] for example in examples])
+            data_dict["batch_labels"] = batch_labels.to(device)
+
         return data_dict
 
     def _mask(self, expressions: torch.Tensor) -> torch.Tensor:
