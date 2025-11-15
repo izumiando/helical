@@ -335,8 +335,8 @@ class scGPTFineTuningModel(HelicalBaseFineTuningModel, scGPT):
             
         device = next(self.model.parameters()).device
         
-        # Enable batch labels usage
-        use_batch_labels = True
+        # Enable batch labels usage for data integration
+        self.model.use_batch_labels = True
         
         # Configure data collator for integration training
         collator = DataCollator(
