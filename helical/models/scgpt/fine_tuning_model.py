@@ -557,6 +557,10 @@ class scGPTFineTuningModel(HelicalBaseFineTuningModel, scGPT):
             use_batch_labels = dataset.batch_ids is not None
         except:
             use_batch_labels = False
+        
+        # Temporarily set model's batch label usage for inference
+        original_use_batch_labels = self.model.use_batch_labels
+        self.model.use_batch_labels = use_batch_labels
 
         collator = DataCollator(
             do_padding=True,
@@ -594,4 +598,7 @@ class scGPTFineTuningModel(HelicalBaseFineTuningModel, scGPT):
             )
             outputs.append(output.detach().cpu().numpy())
 
+        # Restore original batch label setting
+        self.model.use_batch_labels = original_use_batch_labels
+        
         return np.vstack(outputs)
