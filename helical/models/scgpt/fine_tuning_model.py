@@ -596,7 +596,17 @@ class scGPTFineTuningModel(HelicalBaseFineTuningModel, scGPT):
                 use_batch_labels,
                 device,
             )
-            outputs.append(output.detach().cpu().numpy())
+            # Handle different output types from different heads
+            if isinstance(output, dict):
+                # DataIntegrationHead returns a dict with embeddings
+                if 'embeddings' in output:
+                    embeddings = output['embeddings'].detach().cpu().numpy()
+                else:
+                    raise ValueError("DataIntegrationHead output missing 'embeddings' key")
+            else:
+                # Standard heads return tensors directly
+                embeddings = output.detach().cpu().numpy()
+            outputs.append(embeddings)
 
         # Restore original batch label setting
         self.model.use_batch_labels = original_use_batch_labels
