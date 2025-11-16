@@ -187,7 +187,15 @@ class DomainSpecificBatchNorm1d(torch.nn.Module):
                 mask = domain_labels == domain_id
                 if mask.sum() > 0:
                     domain_input = x[mask]
-                    domain_output = self.batch_norms[domain_id](domain_input)
+                    # Handle single sample case by temporarily setting batch norm to eval mode
+                    if mask.sum() == 1:
+                        was_training = self.batch_norms[domain_id].training
+                        self.batch_norms[domain_id].eval()
+                        domain_output = self.batch_norms[domain_id](domain_input)
+                        if was_training:
+                            self.batch_norms[domain_id].train()
+                    else:
+                        domain_output = self.batch_norms[domain_id](domain_input)
                     outputs.append((mask, domain_output))
             
             # Reconstruct the full batch
